@@ -1,57 +1,70 @@
+.section{
+    background-color: #fafafa;
+    font-family: sans-serif;
+}
+
+
 .form{
-  height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #fbfbfb
-
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    height: 100vh;
 }
 
-.form_into{
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background-color: white;
-  width: 380px;
-  border-radius: 20px;
-  padding: 40px;
-  box-shadow: 0 0 5px rgba(192, 191, 191, 0.7);
-
+.container{
+    background-color: white ;
+    width: 355px;
+    box-shadow: 0 0 10px rgb(36, 36, 36);
+    border-radius: 12px;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    
 }
-
+.inp{
+    display: flex;
+    flex-direction: column;
+    font-size: 14px;
+    opacity: .7;
+}
+input{
+    padding: 10px 5px;
+    border: 1.3px solid #ccc;
+    border-radius: 5px;
+}
 .btn{
-  padding: 10px;
-  width: 150px;
-  margin-top: 20px;
-  border-radius: 12px;
-  border: none;
-  background-color: lightcoral;
-  color: white;
-  cursor: pointer;
-  transition: 0.5s ease;
-}
-.btn:hover{
-  background-color: blue;
-
+    cursor: pointer;
+    background-color: #23a6f0;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 5px;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.4;
+    margin-top: 12px;
 }
 
-.todo{
-  padding: 10px;
-  width: 360px;
-  border-radius: 20px;
-  border: 1px solid blue;
-  margin-top: 10px;
+.products{
+    display: flex;
+    gap: 30px;
+    flex-wrap: wrap;
+    
+}
+.product{
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 0 5px rgb(36, 36, 36);
+    border-radius: 10px;
+    padding: 30px;
+    width: 280px;
 }
 
-.input{
-  display: flex;
-  flex-direction: column;
+.foto{
+    width: 150px;
 }
-.elements{
-  display: flex;
-  flex-direction: column;
-  font-size: 22px;
-  margin-top: 20px;
-  margin-right: 70%;
+p{
+    font-size: 20px;
 }
