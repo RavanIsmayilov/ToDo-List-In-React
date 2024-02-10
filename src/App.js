@@ -1,144 +1,98 @@
-import { useState, useRef } from "react";
+import './App.css';
+import {useState} from "react"
 import uniqid from "uniqid";
-import { validate } from "./helpers";
-import "./App.css";
+import { validate } from './helpers';
 
-const AdminPanel = () => {
-  const [list, setList] = useState([]);
-  const [selectedFile, setSelectedFile] = useState(null);
+function App() {
 
-  const [todo, setTodo] = useState({
-    tittle: '',
-    info: '',
-    price: '',
-    foto: null, // Fotoğrafı burada saklayın
-    completed: false,
-    id: 0
-  });
+  const [list,setList] = useState([])
 
-  const [errors, setErrors] = useState({
-    tittle: '',
-    info: '',
-    price: ''
-  });
+  const [todo,setTodo] = useState({
+    text: "",
+    completed:false
+  })
 
-  const fileInputRef = useRef(null);
+
+  const [errors,setErrors] = useState({
+    text: "",
+  })
 
   const handleChange = (e) => {
-    e.preventDefault();
-    const { name, value, files } = e.target;
+    e.preventDefault()
 
-    if (name === "foto") {
-      setTodo({
-        ...todo,
-        [name]: files[0],
-      });
+    const {name,value} = e.target
 
-      setSelectedFile(URL.createObjectURL(files[0]));
-    } else {
-      setTodo({
-        ...todo,
-        [name]: value,
-      });
-    }
+    setTodo({
+      ...todo,
+      [name]: value
+    })
 
-    const error = validate(name, value);
+    const error = validate(name,value)
 
     setErrors({
-      ...errors,
-      [name]: error,
-    });
-  };
+      [name]:error
+    })
+  }
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = (e) =>{
+    e.preventDefault()
 
-    if (errors.tittle.length > 0 && errors.info.length > 0 && errors.price.length > 0) {
-      alert('Something went wrong');
-    } else {
-      setList([
-        ...list,
+    if(errors.text.length > 0){
+      alert("SOmething went wrong")
+    } else{
+
+      setList([  ...list,
+        
         {
           ...todo,
-          foto: selectedFile, // Fotoğrafı buradan alın
-          id: uniqid(),
-        },
-      ]);
+          id:uniqid()
+        }   
+      ])
 
       setTodo({
-        tittle: "",
-        info: '',
-        price: '',
-        foto: null,
-        completed: false,
-      });
-
-      fileInputRef.current.value = "";
+        text:"",
+        completed:false
+      })
     }
-  };
+  }
+
+  function toggle(id){
+    const element = list.find(item => item.id === id)
+    element.completed ? element.completed = false : element.completed = true
+    setList([...list])
+
+  }
 
   return (
-    <section className="section">
-      <form className="form" onSubmit={handleSubmit}>
-        <div className="container">
-          <div className="inp">
-            <label htmlFor="foto">Məhsulun şəkli: </label>
-            <input
-              ref={fileInputRef}
-              type="file"
-              name="foto"
-              onChange={handleChange}
-            />
-          </div>
-          <div className="inp">
-            <label htmlFor="tittle">Məhsulun adı: </label>
-            <input
-              name="tittle"
-              defaultValue={todo.tittle}
-              value={todo.tittle}
-              onChange={handleChange}
-            />
-            {errors.tittle && <p style={{ color: "red" }}>{errors.tittle}</p>}
-          </div>
-          <div className="inp">
-            <label htmlFor="info">Məhsul hakkında məlumat: </label>
-            <input
-              name="info"
-              defaultValue={todo.info}
-              value={todo.info}
-              onChange={handleChange}
-            />
-            {errors.info && <p style={{ color: "red" }}>{errors.info}</p>}
-          </div>
-          <div className="inp">
-            <label htmlFor="price">Məhsulun qiyməti: </label>
-            <input
-              type="number"
-              name="price"
-              defaultValue={todo.price}
-              value={todo.price}
-              onChange={handleChange}
-            />
-            {errors.price && <p style={{ color: "red" }}>{errors.price}</p>}
-          </div>
-          <button className="btn" type="submit">Add button</button>
-        </div>
-      </form>
-      <div className="products">
+  <form className='form' onSubmit = {handleSubmit}>
+    <div className='form_into'>
+      <div className='input'> 
+        <label style={{fontWeight:"500"}} htmlFor="todo">Todo</label>
+        <input
+          className='todo'
+          name="text"
+          value={todo.text}
+          onChange={handleChange}
+        />
+        {errors.text && <p style={{ color: "red" }}>{errors.text}</p>}
+          <button className='btn' type="submit">Submit</button>
+
+      </div>
+
+      <div className='elements'>
         {list.map((item) => (
-          <div className="product" key={item.id}>
-            <img
-              src={item.foto} // Her ürünün kendi fotoğrafını kullanın
-              alt="Selected file preview"
-            />
-            <p>Mehsulun adi : {item.tittle} </p>
-            <p>Mehsulun infosu :{item.info} </p>
-            <p>Mehsulun qiymeti: {item.price}$</p>
-          </div>
+          <div key={item.id}> 
+          
+          <input type="checkbox" onClick={() => toggle(item.id)}  />
+          <label htmlFor="checkbox"  style={{textDecoration: item.completed ? "line-through" : 'none',opacity: item.completed ? .7 : 1}}> {item.text}</label> <br/>
+        
+        </div>
         ))}
       </div>
-    </section>
-  );
-};
+      </div>
 
-export default AdminPanel;
+  </form>
+  );
+}
+
+export default App;
