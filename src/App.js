@@ -1,97 +1,133 @@
-import './App.css';
-import {useState} from "react"
+import React, { useState, useEffect } from "react";
 import uniqid from "uniqid";
-import { validate } from './helpers';
+import { validate } from "./helpers";
+import "./App.css";
 
 function App() {
+  const [list, setList] = useState([]);
 
-  const [list,setList] = useState([])
-
-  const [todo,setTodo] = useState({
+  const [todo, setTodo] = useState({
     text: "",
-    completed:false
-  })
+    completed: false,
+    duration: 5, 
+  });
 
-
-  const [errors,setErrors] = useState({
+  const [errors, setErrors] = useState({
     text: "",
-  })
+  });
 
   const handleChange = (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    const {name,value} = e.target
+    const { name, value } = e.target;
 
     setTodo({
       ...todo,
-      [name]: value
-    })
+      [name]: value,
+    });
 
-    const error = validate(name,value)
+    const error = validate(name, value);
 
     setErrors({
-      [name]:error
-    })
-  }
+      [name]: error,
+    });
+  };
 
-  const handleSubmit = (e) =>{
-    e.preventDefault()
+  const handleSubmit = (e) => {
+    e.preventDefault();
 
-    if(errors.text.length > 0){
-      alert("SOmething went wrong")
-    } else{
+    if (errors.text.length > 0 || todo.text.trim() === "") {
+      alert("Something went wrong");
+    } else {
+      const newTodo = {
+        ...todo,
+        id: uniqid(),
+      };
 
-      setList([  ...list,
-        
-        {
-          ...todo,
-          id:uniqid()
-        }   
-      ])
+      setList([...list, newTodo]);
 
       setTodo({
-        text:"",
-        completed:false
-      })
+        text: "",
+        completed: false,
+        duration: 5, 
+      });
     }
-  }
+  };
 
-  function toggle(id){
-    const element = list.find(item => item.id === id)
-    element.completed ? element.completed = false : element.completed = true
-    setList([...list])
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setList((prevList) =>
+        prevList.map((item) =>
+          item.duration > 0
+            ? { ...item, duration: item.duration - 1 }
+            : { ...item, duration: 0 }
+        )
+      );
+    }, 1000);
 
+    return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    const expiredItems = list.filter((item) => item.duration === 0);
+    
+    if (expiredItems.length > 0) {
+      setList((prevList) =>
+        prevList.filter((item) => item.duration > 0)
+      );
+    }
+  }, [list]);
+
+  function toggle(id) {
+    const updatedList = list.map((item) =>
+      item.id === id ? { ...item, completed: !item.completed } : item
+    );
+    setList(updatedList);
   }
 
   return (
-  <form className='form' onSubmit = {handleSubmit}>
-    <div className='form_into'>
-      <div className='input'> 
-        <label style={{fontWeight:"500"}} htmlFor="todo">Todo</label>
-        <input
-          className='todo'
-          name="text"
-          value={todo.text}
-          onChange={handleChange}
-        />
-        {errors.text && <p style={{ color: "red" }}>{errors.text}</p>}
-          <button className='btn' type="submit">Submit</button>
+    <div>
+      <form className="form" onSubmit={handleSubmit}>
+        <div className="form_into">
+          <div className="input">
+            <label style={{ fontWeight: "500" }} htmlFor="todo">
+              Todo
+            </label>
+            <input
+              className="todo"
+              name="text"
+              value={todo.text}
+              onChange={handleChange}
+            />
+            {errors.text && <p style={{ color: "red" }}>{errors.text}</p>}
+            <button className="btn" type="submit">
+              Submit
+            </button>
+          </div>
 
-      </div>
-
-      <div className='elements'>
-        {list.map((item) => (
-          <div key={item.id}> 
-          
-          <input type="checkbox" onClick={() => toggle(item.id)}  />
-          <label htmlFor="checkbox"  style={{textDecoration: item.completed ? "line-through" : 'none',opacity: item.completed ? .7 : 1}}> {item.text}</label> <br/>
-        
+          <div className="elements">
+            {list.map((item) => (
+              <div key={item.id}>
+                <input type="checkbox" onClick={() => toggle(item.id)} />
+                <label
+                  htmlFor="checkbox"
+                  style={{
+                    textDecoration: item.completed
+                      ? "line-through"
+                      : "none",
+                    opacity: item.completed ? 0.7 : 1,
+                  }}
+                >
+                  {" "}
+                  {item.text} - Time Left: {item.duration} seconds
+                </label>{" "}
+                <br />
+              </div>
+            ))}
+          </div>
         </div>
-        ))}
-      </div>
-      </div>
-
-  </form>
+      </form>
+    </div>
   );
 }
 
