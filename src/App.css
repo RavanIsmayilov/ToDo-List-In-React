@@ -48,10 +48,14 @@
   display: flex;
   flex-direction: column;
 }
-.elements{
+.elements {
   display: flex;
   flex-direction: column;
   font-size: 22px;
   margin-top: 20px;
-  margin-right: 70%;
+  width: 100%;
+}
+
+.elements label {
+  word-wrap: break-word;
 }
