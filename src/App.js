@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import uniqid from "uniqid";
 import { validate } from "./helpers";
 import "./App.css";
 
@@ -8,91 +7,88 @@ function App() {
   const [todo, setTodo] = useState({
     text: "",
     duration: 100,
+    completed: false,
   });
 
-  const [errors, setErrors] = useState({
-    text: "",
-  });
-
+  const [errors, setErrors] = useState({ text: "" });
   const [isEditing, setIsEditing] = useState(false);
   const [editId, setEditId] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     setTodo({
       ...todo,
       [name]: value,
     });
 
     const error = validate(name, value);
-    setErrors({
-      [name]: error,
-    });
+    setErrors({ [name]: error });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (errors.text.length > 0 && ( todo.text.trim() === "" || isEditing)) {
+    if (todo.text.trim() === "") {
       setErrors({ text: "Todo text cannot be empty" });
       return;
-    } else if (isEditing) {
-
-      // Update the existing todo
-      const updatedList = list.map((item) =>
-        item.id === editId ? { ...item, text: todo.text } : item
-      );
-      setList(updatedList);
-
-      // Reset the editing state after updating
-      setEditId(null);
-      setIsEditing(false);
-    } else {
-      // Add a new todo
-      const newTodo = {
-        ...todo,
-        id: uniqid(),
-      };
-      setList([...list, newTodo]);
     }
 
-    // Clear the input after submission
+    if (isEditing) {
+      setList((prevList) =>
+        prevList.map((item) =>
+          item.id === editId
+            ? { ...item, text: todo.text, duration: todo.duration, completed: todo.completed }
+            : item
+        )
+      );
+      setIsEditing(false);
+      setEditId(null);
+    } else {
+      setList((prevList) => [...prevList, { ...todo, id: Date.now() }]);
+    }
+
     setTodo({
       text: "",
       duration: 100,
+      completed: false,
     });
 
-    // Clear errors after successful submission or update
-    setErrors({
-      text: "",
-    });
+    setErrors({ text: "" });
   };
 
   const handleDelete = (id) => {
-    setList(list.filter((item) => item.id !== id));
+    setList((prevList) => prevList.filter((item) => item.id !== id));
   };
 
-  const handleEdit = (id, text) => {
-    setIsEditing(true); // Set the editing mode to true
-    setEditId(id); // Store the id of the item being edited
-    setTodo({
-      ...todo,
-      text, // Populate the input field with the selected todo text
-    });
+  const handleEdit = (id) => {
+    console.log("Edit düyməsi basıldı, ID:", id);
+    const itemToEdit = list.find((item) => item.id === id);
+    console.log("Redaktə ediləcək element:", itemToEdit);
+
+    if (itemToEdit) {
+      setIsEditing(true);
+      setEditId(id);
+    }
   };
 
-  // Added a cancel button functionality to cancel the editing process
+  useEffect(() => {
+    if (editId !== null) {
+      const itemToEdit = list.find((item) => item.id === editId);
+      if (itemToEdit) {
+        setTodo({
+          text: itemToEdit.text,
+          duration: itemToEdit.duration,
+          completed: itemToEdit.completed,
+        });
+      }
+    }
+  }, [editId]); 
+
   const handleCancel = () => {
     setIsEditing(false);
-    setTodo({
-      text: "",
-      completed: false,
-      duration: 100,
-    });
-    setErrors({
-      text: "",
-    });
+    setEditId(null);
+    setTodo({ text: "", duration: 100, completed: false });
+    setErrors({ text: "" });
   };
 
   useEffect(() => {
@@ -110,17 +106,17 @@ function App() {
   }, []);
 
   useEffect(() => {
-    const expiredItems = list.filter((item) => item.duration === 0);
-    if (expiredItems.length > 0) {
+    if (list.some((item) => item.duration === 0)) {
       setList((prevList) => prevList.filter((item) => item.duration > 0));
     }
   }, [list]);
 
   function toggle(id) {
-    const updatedList = list.map((item) =>
-      item.id === id ? { ...item, completed: !item.completed } : item
+    setList((prevList) =>
+      prevList.map((item) =>
+        item.id === id ? { ...item, completed: !item.completed } : item
+      )
     );
-    setList(updatedList);
   }
 
   return (
@@ -139,19 +135,13 @@ function App() {
                 onChange={handleChange}
                 placeholder={isEditing ? "Edit todo..." : "Add new todo..."}
               />
-              {errors.text && (
-                <span style={{ color: "red" }}>{errors.text}</span>
-              )}
+              {errors.text && <span style={{ color: "red" }}>{errors.text}</span>}
             </div>
             <button className="btn" type="submit">
               {isEditing ? "Update" : "Add"}
             </button>
             {isEditing && (
-              <button
-                type="button"
-                className="btn"
-                onClick={handleCancel}
-              >
+              <button type="button" className="btn" onClick={handleCancel}>
                 Cancel
               </button>
             )}
@@ -160,11 +150,7 @@ function App() {
           <div className="elements">
             {list.map((item) => (
               <div key={item.id} className="todo-item">
-                <input
-                  type="checkbox"
-                  checked={item.completed}
-                  onChange={() => toggle(item.id)} // Use onChange to toggle checkbox state
-                />
+                <input type="checkbox" checked={item.completed} onChange={() => toggle(item.id)} />
                 <label
                   style={{
                     width: "80%",
@@ -174,16 +160,10 @@ function App() {
                 >
                   {item.text} - Time Left: {item.duration} seconds
                 </label>
-                <button
-                  className="edit-btn"
-                  onClick={() => handleEdit(item.id, item.text)}
-                >
+                <button className="edit-btn" onClick={() => handleEdit(item.id)}>
                   Edit
                 </button>
-                <button
-                  className="delete-btn"
-                  onClick={() => handleDelete(item.id)}
-                >
+                <button className="delete-btn" onClick={() => handleDelete(item.id)}>
                   Delete
                 </button>
               </div>
